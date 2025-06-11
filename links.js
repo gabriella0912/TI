@@ -1,53 +1,51 @@
-document.addEventListener('DOMContentLoaded', function () {
-    const btn = document.getElementById('lerBtn'); // usa o botão já existente no HTML
-
+document.addEventListener('DOMContentLoaded', function() {
+    const btn = document.getElementById('lerBtn');
     const synth = window.speechSynthesis;
     let utterance = null;
-    let estaLendo = false;
+    let isSpeaking = false;
 
-    function configurarVoz() {
-        if (utterance) {
-            const vozes = synth.getVoices();
-            if (vozes.length > 0) {
-                const vozPT = vozes.find(voz => voz.lang.includes('pt')) || vozes[0];
-                utterance.voice = vozPT;
-            }
-            utterance.rate = 1;
-            utterance.pitch = 1;
-        }
-    }
-
+    // Função para ler todo o texto da página
     function lerTexto() {
-        const texto = document.body.innerText;
-
-        if (synth.speaking && !synth.paused) {
-            synth.pause();
-            estaLendo = false;
-            btn.textContent = 'Continuar Leitura';
+        // Se já estiver lendo, para a leitura
+        if (isSpeaking) {
+            synth.cancel();
+            isSpeaking = false;
+            btn.textContent = 'Ler Texto';
             btn.classList.remove('parar');
-        } else if (synth.speaking && synth.paused) {
-            synth.resume();
-            estaLendo = true;
-            btn.textContent = 'Parar Leitura';
-            btn.classList.add('parar');
-        } else {
-            utterance = new SpeechSynthesisUtterance(texto);
-            configurarVoz();
-
-            utterance.onend = function () {
-                estaLendo = false;
-                btn.textContent = 'Ler Texto';
-                btn.classList.remove('parar');
-            };
-
-            synth.speak(utterance);
-            estaLendo = true;
-            btn.textContent = 'Parar Leitura';
-            btn.classList.add('parar');
+            return;
         }
+
+        // Se não estiver lendo, começa a leitura
+        const texto = document.body.textContent || document.body.innerText;
+        utterance = new SpeechSynthesisUtterance(texto);
+        
+        // Configurações da voz
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+        utterance.lang = 'pt-BR';
+
+        // Evento quando a leitura terminar
+        utterance.onend = function() {
+            isSpeaking = false;
+            btn.textContent = 'Ler Texto';
+            btn.classList.remove('parar');
+        };
+
+        // Evento em caso de erro
+        utterance.onerror = function(event) {
+            console.error('Erro na leitura:', event);
+            isSpeaking = false;
+            btn.textContent = 'Ler Texto';
+            btn.classList.remove('parar');
+        };
+
+        // Inicia a leitura
+        synth.speak(utterance);
+        isSpeaking = true;
+        btn.textContent = 'Parar Leitura';
+        btn.classList.add('parar');
     }
 
-    synth.onvoiceschanged = configurarVoz;
+    // Adiciona o evento de clique ao botão
     btn.addEventListener('click', lerTexto);
-    configurarVoz();
 });
