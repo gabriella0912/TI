@@ -1,9 +1,6 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const btn = document.createElement('button');
-    btn.id = 'lerBtn';
-    btn.textContent = 'Ler Texto';
-    document.body.appendChild(btn);
-    
+document.addEventListener('DOMContentLoaded', function () {
+    const btn = document.getElementById('lerBtn'); // usa o botão já existente no HTML
+
     const synth = window.speechSynthesis;
     let utterance = null;
     let estaLendo = false;
@@ -20,9 +17,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function lerTexto() { //pega os textos 
+    function lerTexto() {
         const texto = document.body.innerText;
-        
+
         if (synth.speaking && !synth.paused) {
             synth.pause();
             estaLendo = false;
@@ -36,13 +33,13 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             utterance = new SpeechSynthesisUtterance(texto);
             configurarVoz();
-            
-            utterance.onend = function() {
+
+            utterance.onend = function () {
                 estaLendo = false;
                 btn.textContent = 'Ler Texto';
                 btn.classList.remove('parar');
             };
-            
+
             synth.speak(utterance);
             estaLendo = true;
             btn.textContent = 'Parar Leitura';
