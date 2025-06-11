@@ -1,51 +1,52 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const btn = document.getElementById('lerBtn');
-    const synth = window.speechSynthesis;
-    let utterance = null;
-    let isSpeaking = false;
+let fala = null;
+let statusLeitura = "parado";
 
-    // Função para ler todo o texto da página
-    function lerTexto() {
-        // Se já estiver lendo, para a leitura
-        if (isSpeaking) {
-            synth.cancel();
-            isSpeaking = false;
-            btn.textContent = 'Ler Texto';
-            btn.classList.remove('parar');
-            return;
-        }
+function alternarLeitura() {
+  const botao = document.getElementById("botaoLeitor");
 
-        // Se não estiver lendo, começa a leitura
-        const texto = document.body.textContent || document.body.innerText;
-        utterance = new SpeechSynthesisUtterance(texto);
-        
-        // Configurações da voz
-        utterance.rate = 1.0;
-        utterance.pitch = 1.0;
-        utterance.lang = 'pt-BR';
+  // Se estiver lendo, pausa
+  if (statusLeitura === "lendo") {
+    window.speechSynthesis.pause();
+    statusLeitura = "pausado";
+    botao.textContent = "Retomar";
+    return;
+  }
 
-        // Evento quando a leitura terminar
-        utterance.onend = function() {
-            isSpeaking = false;
-            btn.textContent = 'Ler Texto';
-            btn.classList.remove('parar');
-        };
+  // Se estiver pausado, retoma
+  if (statusLeitura === "pausado") {
+    window.speechSynthesis.resume();
+    statusLeitura = "lendo";
+    botao.textContent = "Pausar";
+    return;
+  }
 
-        // Evento em caso de erro
-        utterance.onerror = function(event) {
-            console.error('Erro na leitura:', event);
-            isSpeaking = false;
-            btn.textContent = 'Ler Texto';
-            btn.classList.remove('parar');
-        };
+  const texto = document.body.innerText;
 
-        // Inicia a leitura
-        synth.speak(utterance);
-        isSpeaking = true;
-        btn.textContent = 'Parar Leitura';
-        btn.classList.add('parar');
-    }
+  if (!texto.trim()) {
+    alert("Não há texto visível para ler.");
+    return;
+  }
 
-    // Adiciona o evento de clique ao botão
-    btn.addEventListener('click', lerTexto);
-});
+  fala = new SpeechSynthesisUtterance(texto);
+  fala.lang = "pt-BR";
+
+
+  fala.onstart = () => {
+    statusLeitura = "lendo";
+    botao.textContent = "Pausar";
+  };
+
+  fala.onend = () => {
+    statusLeitura = "parado";
+    botao.textContent = "Ler texto";
+  };
+
+  fala.onerror = () => {
+    statusLeitura = "parado";
+    botao.textContent = "Ler Tudo";
+    alert("Erro ao tentar ler o texto.");
+  };
+
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(fala);
+}

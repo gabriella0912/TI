@@ -129,7 +129,7 @@ footer {
         font-size: 2rem;
     }
 }
-#lerBtn {
+#botaoLeitor {
     background-color: #4CAF50;
     color: white;
     border: none;
@@ -140,14 +140,14 @@ footer {
     transition: background-color 0.3s;
 }
 
-#lerBtn:hover {
+#botaoLeitor:hover {
     background-color: #45a049;
 }
 
-#lerBtn.parar {
+#botaoLeitor.parar {
     background-color: #f44336;
 }
 
-#lerBtn.parar:hover {
+#botaoLeitor.parar:hover {
     background-color: #d32f2f;
 }
